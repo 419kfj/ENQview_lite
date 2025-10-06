@@ -31,9 +31,9 @@ library(tibble)
 library(tidyverse)
 
 showtext::showtext_auto(TRUE)
-load("taste_J.rda")
-data.df=taste_J
 
+load("taste_J.rda")
+data.df <- taste_J
 #-------------------------------------------------------------------------------
 # Define UI for application
 #
@@ -45,13 +45,15 @@ ui <- fluidPage("調査データ簡易集計",
                  "基本集計",
                  h1("基本集計を行います。"),
                  sidebarPanel(
-                 selectInput(
-                      inputId = "selected_data_for_plot",
-                      label = h3("集計対象はこれです："),
-                      choices = "data.df",
-                      selected = "data.df" # デフォルトで最初の列を選択
+                   fileInput("file","rda ファイルをupload",
+                             accept = c(".rda")),
+#                 selectInput(
+#                      inputId = "selected_data_for_plot",
+#                      label = h3("集計対象はこれです："),
+#                      choices = "data.df",
+#                      selected = "data.df" # デフォルトで最初の列を選択
 #                    )
-                 ),
+#                 ),
 
                     selectInput("variables", "変数の複数選択（MAなど )単変数では最初のものだけ:",
                                 choices =  NULL,
@@ -70,6 +72,7 @@ ui <- fluidPage("調査データ簡易集計",
                               "集計する変数",
                               choices = NULL, #colnames("selected_data_for_plot"),
                               selected =  colnames(data.df)[3]),
+
                  ),
                  #---- MAIN Panel
                  mainPanel(
@@ -162,30 +165,70 @@ server <- function(input, output, session) {
     #   data.df
     # })
 
+    dataset <- reactive({
+      req(input$file)   # ファイルが選ばれていることを確認
 
+      # 一時ファイルパス
+      file_path <- input$file$datapath
+
+      # 新しい環境にロード（既存オブジェクトと衝突しないように）
+      e <- new.env()
+      obj_names <- load(file_path, envir = e)  # 読み込まれたオブジェクト名ベクトル
+
+      # 複数入っていた場合もリストにして返す
+      objs <- mget(obj_names, envir = e)
+      return(objs)
+    })
+
+
+    # その中から「最初のオブジェクト」をデータとして利用
     data_for_plot <- reactive({
-      data <- switch(input$selected_data_for_plot,
-                     "data.df" = data.df#,
-                     # "iris" = iris,
-                     # "titanic" = data.frame(lapply(data.frame(Titanic),
-                     #                               function(i){rep(i, data.frame(Titanic)[, 5])})),
-                     # "Womenlf" = Womenlf,
-                     # "iwate.f2" = iwate.f2[,-c(1,2)],
-                     # "iwate.f" = iwate.f[,-c(1,2)],
-                     # "Bunka" = Bunka[,-c(1,2)],
-                     # "Bunka3" = Bunka3[,],
-                     # "UTAS2020_a" = UTAS2020_a[,-c(1,2)],
-                     # "issp2016" = issp2016[,-c(1,2,3,4)]
-                     )
-      updateSelectInput(session, "select_input_data_for_hist", choices = colnames(data))
-      updateSelectInput(session, "select_input_data_for_cross", choices = c(" ",colnames(data)))
-      updateSelectInput(session, "select_input_data_for_layer", choices = c(" ",colnames(data)))
-    #  updateSelectInput(session, "valiables", choices = colnames(data))
+      req(dataset())
+      data <- dataset()[[1]]   # 一番最初のオブジェクトを取り出す
+
+      # ここでUIを更新
+      updateSelectInput(session, "select_input_data_for_hist",
+                        choices = colnames(data))
+      updateSelectInput(session, "select_input_data_for_cross",
+                        choices = c(" ", colnames(data)))
+      updateSelectInput(session, "select_input_data_for_layer",
+                        choices = c(" ", colnames(data)))
       updateSelectInput(session, "variables",
                         choices = colnames(data),
                         selected = colnames(data)[3:4])
+
       return(data)
     })
+
+    # 例: 表示確認
+    output$preview <- renderTable({
+      head(data_for_plot())
+    })
+#}
+
+    # data_for_plot <- reactive({
+    #   data <- switch(input$selected_data_for_plot,
+    #                  "data.df" = data.df#,
+    #                  # "iris" = iris,
+    #                  # "titanic" = data.frame(lapply(data.frame(Titanic),
+    #                  #                               function(i){rep(i, data.frame(Titanic)[, 5])})),
+    #                  # "Womenlf" = Womenlf,
+    #                  # "iwate.f2" = iwate.f2[,-c(1,2)],
+    #                  # "iwate.f" = iwate.f[,-c(1,2)],
+    #                  # "Bunka" = Bunka[,-c(1,2)],
+    #                  # "Bunka3" = Bunka3[,],
+    #                  # "UTAS2020_a" = UTAS2020_a[,-c(1,2)],
+    #                  # "issp2016" = issp2016[,-c(1,2,3,4)]
+    #                  )
+    #   updateSelectInput(session, "select_input_data_for_hist", choices = colnames(data))
+    #   updateSelectInput(session, "select_input_data_for_cross", choices = c(" ",colnames(data)))
+    #   updateSelectInput(session, "select_input_data_for_layer", choices = c(" ",colnames(data)))
+    # #  updateSelectInput(session, "valiables", choices = colnames(data))
+    #   updateSelectInput(session, "variables",
+    #                     choices = colnames(data),
+    #                     selected = colnames(data)[3:4])
+    #   return(data)
+    # })
   # barplot by ggplot2
     output$barchart <- renderPlot({            # input$select_input_data_for_hist
       #browser()##
