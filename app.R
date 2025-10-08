@@ -1,5 +1,8 @@
-#' 調査票データ一覧ツール
 #
+#　ENQview_lite ver2.0
+#
+# 履歴
+#　ver2.0-　2025/10/08
 #' 履歴
 #' 2025/10/06 昨日2025/10/05の最終版
 #' 2025/06/17 基本集計のカテゴリから「非該当」を除くスクリプトを暫定的にいれた。ちょっと乱暴。
@@ -7,216 +10,151 @@
 #' 2024/12/22 function化、パッケージ化、一段落
 #' 2024/12/21 function化作業開始
 #' 2024/01/30 gitでの管理　を開始
-# #' @importFrom shiny fluidPage tabPanel selectInput plotOutput renderPlot h1 h2 h3
-# #' @importFrom shiny sidebarPanel mainPanel tabsetPanel titlePanel sidebarLayout
-# #' @importFrom shiny uiOutput downloadButton tableOutput
-#' @import GDAtools
-#' @import shiny
-#' @importFrom GGally ggpairs
-#' @importFrom DT DTOutput renderDT
-#' @importFrom gt gt_output render_gt
-#' @importFrom gtsummary as_gt bold_labels add_p tbl_cross
-#' @importFrom vcd mosaic structable labeling_values
-#' @importFrom purrr reduce
-#' @importFrom tibble as.tibble
-#' @export
-#load("taste_J.rda")
-#ENQview <- function(data.df=taste_J,...){
 
-
+library(shiny)
+library(tidyverse)
 library(gt)
 library(gtsummary)
 library(vcd)
 library(purrr)
 library(tibble)
-library(tidyverse)
-
+library(showtext)
 showtext::showtext_auto(TRUE)
-load("taste_J.rda")
-data.df <- taste_J
-#-------------------------------------------------------------------------------
-# Define UI for application
-#
-ui <- fluidPage("調査データ簡易集計",
-                             #textOutput("timestamp")  # タイムスタンプの表示
-                              #)
-                #--------------------------------
-                tabPanel(
-                  "基本集計",
-                  h1("基本集計を行います。"),
-                  sidebarPanel(
-                    fileInput("file","rda ファイルをupload",
-                              accept = c(".rda")),
-         #           fileInput("rda_file", "RDAファイルをアップロード", accept = ".rda"),
-         #          # アップロードした .rda 内のオブジェクトを選択するUI
-         #          uiOutput("rda_objects_ui"),
 
-                    selectInput("variables", "変数の複数選択（MAなど )単変数では最初のものだけ:",
-                                choices =  NULL,
-                                multiple = TRUE,
-                                selectize = FALSE,
-                                size = 7
-                    ),  # 複数選択を許可
+ui <- fluidPage(
+  titlePanel("ENQview_lite RDAファイルからデータフレーム選択版"),
 
-                    selectInput("select_input_data_for_cross",
-                                "クロス集計する変数",
-                                choices = NULL),
-                    selectInput("select_input_data_for_layer",
-                                "層化する変数",
-                                choices = NULL),
-                    selectInput("select_input_data_for_hist",
-                                "集計する変数",
-                                choices = NULL, #colnames("selected_data_for_plot"),
-                                selected =  colnames(data.df)[3]),
+  tabPanel(
+    "基本集計",
+    sidebarLayout(   # ← ★ ここを sidebarLayout() に変更！
+      sidebarPanel(
+        fileInput("rda_file", "RDAファイルを選択", accept = ".rda"),
+        uiOutput("rda_objects_ui"),
+        uiOutput("variables_ui"),
+        tags$hr(),
+        uiOutput("cross_var_ui"),
+        uiOutput("layer_var_ui"),
+        uiOutput("variables2_ui"),
+        uiOutput("hist_var_ui")
+      ),
 
-                  ),
-                  #---- MAIN Panel
-                  mainPanel(
-                    tableOutput("preview_data"),
-                    tabsetPanel(type = "tabs",
-                                tabPanel("単変数集計",
-                                         h2("棒グラフと度数分布"),
-                                         plotOutput("barchart"),
-                                         DT::dataTableOutput("simple_table"), # server.R も対応させること！
-                                ),
-                                tabPanel("2変数分析",
-                                         h2("クロス集計（gtsummary::tbl_cross )"),
-                                         #  verbatimTextOutput("crosstable"),
-                                         gt_output(outputId = "my_gt_table2"),
-                                         plotOutput("crosschart",width = 600, height = 600),
-                                         h3("χ2乗検定"),
-                                         verbatimTextOutput("chisq_test2")
-                                ),
-                                tabPanel("pairs",
-                                         h2("GGally::pairs"),
-                                         plotOutput("pairs",width = 600, height = 600)
-                                ),
-                                tabPanel("pairs_multi",
-                                         h2("GGally::pairs 多変数"),
-                                         plotOutput("pairs_multi",width = 900, height = 900)
-                                ),
+      mainPanel(
+        tabsetPanel(
+          type = "tabs",
+
+          tabPanel("単変数集計",
+                   h2("棒グラフと度数分布"),
+                   plotOutput("barchart"),
+                   DT::dataTableOutput("simple_table")
+          ),
+
+          tabPanel("2変数分析",
+                   h2("クロス集計（gtsummary::tbl_cross )"),
+                   gt_output(outputId = "my_gt_table2"),
+                   plotOutput("crosschart", width = 600, height = 600),
+                   h3("χ2乗検定"),
+                   verbatimTextOutput("chisq_test2")
+          ),
+
+          tabPanel("pairs",
+                   h2("GGally::pairs"),
+                   plotOutput("pairs", width = 600, height = 600)
+          ),
+
+          tabPanel("pairs_multi",
+                   h2("GGally::pairs 多変数"),
+                   plotOutput("pairs_multi", width = 900, height = 900)
+          ),
+
+          tabPanel("2変数分析（層化）",
+                   h2("クロス集計（gtsummary::tbl_cross )"),
+                   gt_output(outputId = "my_gt_table"),
+                   plotOutput("crosschart2", width = 900, height = 600),
+                   h3("χ2乗検定"),
+                   verbatimTextOutput("chisq_test")
+          ),
+
+          tabPanel("MA plot(Bar)",
+                   h2("MA変数集計"),
+                   plotOutput("MAplot", width = 600, height = 600)
+          ),
+
+          tabPanel("MA plot(Dot)",
+                   h2("MA変数集計"),
+                   plotOutput("MAplot_Dot", width = 600, height = 600)
+          ),
+
+          tabPanel("層化 MA plot",
+                   h2("層化MA変数集計"),
+                   plotOutput("MAplot_lineDot", width = 600, height = 400),
+                   plotOutput("MAplot_lineDotwarp", width = 600, height = 600)
+          ),
+
+          tabPanel("層化 MA plot2",
+                   h2("層化MA変数集計（Legendなし）"),
+                   plotOutput("MAplot_lineDot2", width = 600, height = 400),
+                   plotOutput("MAplot_lineDotwarp", width = 600, height = 600)
+          ),
+
+          tabPanel("Grid回答 General mosaic表示",
+                   h2("Grid回答mosaic表示"),
+                   plotOutput("GridAnswerG_mosaic", width = 600, height = 600),
+                   plotOutput("GridAnswerG_CA", width = 700, height = 700)
+          ),
+
+          tabPanel("単変数check",
+                   h2("棒グラフと度数分布"),
+                   plotOutput("barchart2"),
+                   DT::dataTableOutput("simple_table2")
+          ),
+
+          tabPanel("選択変数のデータ一覧",
+                   h2("データ一覧"),
+                   DT::dataTableOutput("table_for_plot")
+          )
+        )  # ← tabsetPanel の閉じかっこ
+      )    # ← mainPanel の閉じかっこ
+    )      # ← sidebarLayout の閉じかっこ
+  )        # ← tabPanel("基本集計") の閉じかっこ
+)          # ← fluidPage の閉じかっこ
 
 
-                                tabPanel("2変数分析（層化 )",
-                                         h2("クロス集計（gtsummary::tbl_cross )"),
-                                         #  verbatimTextOutput("crosstable"),
-                                         gt_output(outputId = "my_gt_table"),
-                                         plotOutput("crosschart2",width = 900, height = 600),
-                                         h3("χ2乗検定"),
-                                         verbatimTextOutput("chisq_test")
-                                ),
-                                tabPanel("MA plot(Bar)",
-                                         h2("MA変数集計"),
-                                         plotOutput("MAplot",width = 600, height = 600)
-                                ),
-
-                                tabPanel("MA plot(Dot)",
-                                         h2("MA変数集計"),
-                                         plotOutput("MAplot_Dot",width = 600, height = 600)
-                                ),
-
-                                tabPanel("層化 MA plot",
-                                         h2("層化MA変数集計"),
-                                         plotOutput("MAplot_lineDot",width = 600, height = 400),
-                                         plotOutput("MAplot_lineDotwarp",width = 600, height = 600)
-                                ),
-
-                                tabPanel("層化 MA plot2",
-                                         h2("層化MA変数集計（Legendなし）"),
-                                         plotOutput("MAplot_lineDot2",width = 600, height = 400),
-                                         plotOutput("MAplot_lineDotwarp",width = 600, height = 600)
-                                ),
-
-                                tabPanel("Grid回答 General mosaic表示",
-                                         h2("Grid回答mosaic表示"),
-                                         plotOutput("GridAnswerG_mosaic",width = 600, height = 600),
-                                         plotOutput("GridAnswerG_CA",width = 700, height = 700)
-                                ),
-
-                                tabPanel("単変数check",
-                                         h2("棒グラフと度数分布"),
-                                         plotOutput("barchart2"),
-                                         DT::dataTableOutput("simple_table2"), #
-                                ),
-                                tabPanel("選択変数のデータ一覧",
-                                         h2("データ一覧"),
-                                         DT::dataTableOutput("table_for_plot")
-                                ),
-                    )
-                  )
-                ),
-)
-
-#-------------------------------------------------------------------------------
-# Define server logic required to draw output tables and graphs
-#
 server <- function(input, output, session) {
-  # .rda を読み込むための環境
-  rda_env <- reactiveVal(new.env())
-
-  # ファイルがアップロードされたとき
-  observeEvent(input$rda_file, {
+# .rdaファイルから処理対象のdatasetを選択する------
+  # アップロードされた RDA を一時的な環境にロード
+  rda_env <- reactive({
     req(input$rda_file)
     env <- new.env()
     load(input$rda_file$datapath, envir = env)
-    rda_env(env)
-  })
-# ####----
-#   # アップロードした .rda 内のオブジェクトを選択するUI
-#   output$rda_objects_ui <- renderUI({
-#     req(rda_env())
-#     selectInput(
-#       "rda_object",
-#       "Rオブジェクトを選択",
-#       choices = ls(rda_env())
-#     )
-#   })
-#
-#   # 選択したオブジェクトのプレビュー
-#   output$preview_data <- renderTable({
-#     req(input$rda_object)
-#     obj <- get(input$rda_object, envir = rda_env())
-#     if (is.data.frame(obj)) {
-#       head(obj)  # データフレームなら先頭6行を表示
-#     } else {
-#       data.frame(Value = obj)  # データフレームでない場合は値を表示
-#     }
-#   })
-# #######---
-
-  #    addResourcePath("data", "data")
-  output$distPlot_shiny <- renderPlot({
-    x    <- faithful[, 2]
-    bins <- seq(min(x), max(x), length.out = input$bins_shiny + 1)
-    hist(x, breaks = bins, col = 'darkgray', border = 'white')
+    env
   })
 
-  # data_for_plot <- reactive({
-  #   data.df
-  # })
-
-  dataset <- reactive({
-    req(input$file)   # ファイルが選ばれていることを確認
-
-    # 一時ファイルパス
-    file_path <- input$file$datapath
-
-    # 新しい環境にロード（既存オブジェクトと衝突しないように）
-    e <- new.env()
-    obj_names <- load(file_path, envir = e)  # 読み込まれたオブジェクト名ベクトル
-
-    # 複数入っていた場合もリストにして返す
-    objs <- mget(obj_names, envir = e)
-    return(objs)
+  # RDA 内のオブジェクト一覧を選択させる UI
+  output$rda_objects_ui <- renderUI({
+    req(rda_env())
+    selectInput("rda_object", "RDA 内のオブジェクトを選択",
+                choices = ls(rda_env()), selected = ls(rda_env())[1])
   })
 
+  # 選択されたオブジェクトを reactiveVal に格納
+  data.df <- reactiveVal(NULL)
 
-  # その中から「最初のオブジェクト」をデータとして利用
-  data_for_plot <- reactive({
-    req(dataset())
-    data <- dataset()[[1]]   # 一番最初のオブジェクトを取り出す
+  observeEvent(input$rda_object, {
+    req(input$rda_object)
+    obj <- get(input$rda_object, envir = rda_env())
+    if (is.data.frame(obj)) {
+      data.df(obj)  # ここで reactiveVal に保存
+    } else {
+      showNotification("選択したオブジェクトはデータフレームではありません。", type = "error")
+      data.df(NULL)
+    }
+  })
 
-    # ここでUIを更新
+# ←★ ここを追加：data.df() が更新されたらUIを更新
+  observeEvent(data.df(), {
+    req(data.df())
+    data <- data.df()
+
     updateSelectInput(session, "select_input_data_for_hist",
                       choices = colnames(data))
     updateSelectInput(session, "select_input_data_for_cross",
@@ -226,22 +164,67 @@ server <- function(input, output, session) {
     updateSelectInput(session, "variables",
                       choices = colnames(data),
                       selected = colnames(data)[3:4])
-
-    return(data)
   })
 
-  # 例: 表示確認
-  output$preview <- renderTable({
-    head(data_for_plot())
-  })
-  #}
+  data_for_plot <- reactive({
+    req(data.df())
+    data.df()
 
-  # barplot by ggplot2
-  output$barchart <- renderPlot({            # input$select_input_data_for_hist
-    #browser()##
-    data_for_plot() %>% count(!!!rlang::syms(input$variables[1])) %>% dplyr::rename(V1=1) %>%  filter(V1 != "非該当") %>%
+  })
+
+  output$hist_var_ui <- renderUI({
+    req(data.df())
+    selectInput("select_input_data_for_hist", "確認したい単変数",
+                choices = names(data.df()))
+  })
+
+  output$cross_var_ui <- renderUI({
+    req(data.df())
+    selectInput("select_input_data_for_cross", "クロス集計変数を選択",
+                choices = c(" ", names(data.df())))
+  })
+
+  output$layer_var_ui <- renderUI({
+    req(data.df())
+    selectInput("select_input_data_for_layer", "層変数を選択",
+                choices = c(" ", names(data.df())))
+  })
+
+  # output$variable_ui <- renderUI({
+  #   req(data.df())
+  #   selectInput("select_input_data_for_layer", "層変数を選択",
+  #               choices = c(" ", names(data.df())))
+  # })
+
+
+  # データフレームの列をチェックボックスで選択
+  output$variables_ui <- renderUI({
+    req(data.df())
+#    checkboxGroupInput("variables", "列を選択",
+#    radioButtons("variables", "列を選択",
+    selectInput("variables", "変数を選択",
+                       choices = names(data.df()),
+                       selected = names(data.df())[1],
+                       multiple = TRUE,
+                       selectize = FALSE,
+                       size = 7)
+  })
+
+  ####---- functions for each output
+
+  # 選択列のプレビュー
+  output$table_preview <- renderTable({
+    req(data.df(), input$variables)
+    data.df()[, input$variables, drop = FALSE]
+  })
+
+  # barplot by ggplot2 動作確認用function
+  output$barchart <- renderPlot({
+    data_for_plot() %>% count(!!!rlang::syms(input$variables[1])) %>%
+      dplyr::rename(V1=1) %>%  filter(V1 != "非該当") %>%
       mutate(rate=100 * .data[["n"]]/sum(.data[["n"]])) %>%
-      ggplot2::ggplot(aes(x=V1,y=rate)) + ggplot2::geom_col(aes(fill=V1)) + ggplot2::ggtitle(input$variables[1])
+      ggplot2::ggplot(aes(x=V1,y=rate)) + ggplot2::geom_col(aes(fill=V1)) +
+      ggplot2::ggtitle(input$variables[1])
   })
 
   output$barchart2 <- renderPlot({
@@ -436,8 +419,6 @@ server <- function(input, output, session) {
         ggplot2::theme(legend.position = 'none')
     }
   })
-
-
 
 
   # 層化MA warp Faset
