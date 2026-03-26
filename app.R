@@ -336,7 +336,7 @@ server <- function(input, output, session) {
     if (length(selected_vars) > 0) {
       # 選択された変数を用いてプロット
       selected_data <- data_for_plot()[, selected_vars, drop = FALSE]
-      selected_data %>% dplyr::summarise(across(everything(), ~ mean(. == 1,na.rm =TRUE))) %>%
+      selected_data %>% dplyr::reframe(across(everything(), ~ mean(. == 1,na.rm =TRUE))) %>%
         tidyr::pivot_longer(cols = everything(), names_to = "Question", values_to = "Ratio") -> ratio_df
 
       ggplot2::ggplot(ratio_df, aes(x = Question, y = Ratio)) +
@@ -356,7 +356,7 @@ server <- function(input, output, session) {
     if (length(selected_vars) > 0) {
       # 選択された変数を用いてプロット
       selected_data <- data_for_plot()[, selected_vars, drop = FALSE]
-      selected_data %>% dplyr::summarise(across(everything(), ~ mean(. == 1,na.rm =TRUE))) %>%
+      selected_data %>% dplyr::reframe(across(everything(), ~ mean(. == 1,na.rm =TRUE))) %>%
         tidyr::pivot_longer(cols = everything(), names_to = "Question", values_to = "Ratio") -> ratio_df
 
       ratio_df %>%
@@ -378,7 +378,7 @@ server <- function(input, output, session) {
       selected_data <- data_for_plot()[, selected_vars, drop = FALSE]
       gp_vari <- input$select_input_data_for_layer # 層化変数
       data_for_plot() %>% group_by(!!!rlang::syms(gp_vari)) %>%
-        dplyr::summarise(度数=n(),across(selected_vars, ~ sum(. == 1,na.rm = TRUE)/n(),.names="ratio_{col}")) -> MA_group_tbl # ここで、行を選択すればいよい
+        dplyr::reframe(度数=n(),across(selected_vars, ~ sum(. == 1,na.rm = TRUE)/n(),.names="ratio_{col}")) -> MA_group_tbl # ここで、行を選択すればいよい
       MA_group_tbl %>% select(-度数) %>%
         tidyr::pivot_longer(cols = starts_with("ratio_"),  # ratio_で始まる列 (変数1〜8) をlong形式に変換
                             names_to = "variable",         # 変数名の列を"variable"として格納
@@ -403,7 +403,7 @@ server <- function(input, output, session) {
       selected_data <- data_for_plot()[, selected_vars, drop = FALSE]
       gp_vari <- input$select_input_data_for_layer # 層化変数
       data_for_plot() %>% group_by(!!!rlang::syms(gp_vari)) %>%
-        dplyr::summarise(度数=n(),across(selected_vars, ~ sum(. == 1,na.rm = TRUE)/n(),.names="ratio_{col}")) -> MA_group_tbl # ここで、行を選択すればいよい
+        dplyr::reframe(度数=n(),across(selected_vars, ~ sum(. == 1,na.rm = TRUE)/n(),.names="ratio_{col}")) -> MA_group_tbl # ここで、行を選択すればいよい
       MA_group_tbl %>% select(-度数) %>%
         tidyr::pivot_longer(cols = starts_with("ratio_"),  # ratio_で始まる列 (変数1〜8) をlong形式に変換
                             names_to = "variable",         # 変数名の列を"variable"として格納
@@ -432,7 +432,7 @@ server <- function(input, output, session) {
 
       gp_vari <- input$select_input_data_for_layer # 層化する変数
       data_for_plot() %>% dplyr::group_by(!!!rlang::syms(gp_vari)) %>%
-        dplyr::summarise(度数=n(),across(selected_vars, ~ sum(. == 1,na.rm = TRUE)/n(),.names="ratio_{col}")) -> MA_group_tbl
+        dplyr::reframe(度数=n(),across(selected_vars, ~ sum(. == 1,na.rm = TRUE)/n(),.names="ratio_{col}")) -> MA_group_tbl
 
       MA_group_tbl %>% select(-度数) %>%
         tidyr::pivot_longer(cols = starts_with("ratio_"),  # ratio_で始まる列 (変数1〜8) をlong形式に変換
