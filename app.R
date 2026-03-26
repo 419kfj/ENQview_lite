@@ -1,7 +1,8 @@
 #
-#　ENQview_lite ver2.0
+#　ENQview_lite ver2.2
 #
 # 履歴
+#　ver2.2   2026/03/26　dplyr::summarizeをreframeに修正
 #　ver2.0-　2025/10/08
 #' 履歴
 #' 2025/10/06 昨日2025/10/05の最終版
@@ -11,6 +12,7 @@
 #' 2024/12/21 function化作業開始
 #' 2024/01/30 gitでの管理　を開始
 
+options(shiny.sanitize.errors = FALSE)
 library(shiny)
 library(tidyverse)
 library(gt)
@@ -453,6 +455,7 @@ server <- function(input, output, session) {
   #
 
   output$GridAnswer_mosaic <- renderPlot({
+    req(input$variables)
     selected_vars <- input$variables
     count_categories <- function(x) {
       table(factor(x, levels = c("++", "+", "-", "--", "DK", "無回答"), exclude = NULL))
@@ -460,7 +463,8 @@ server <- function(input, output, session) {
 
     # df の 1 列目から 20 列目の各列ごとにカテゴリを集計
     category_count_tbl <- data_for_plot() %>%
-      dplyr::summarise(across(selected_vars, ~ count_categories(.)))
+      #dplyr::summarise(across(selected_vars, ~ count_categories(.)))
+    　dplyr::reframe(across(selected_vars, ~ count_categories(.)))
 
     category_count_tbl %>% as.matrix() -> cat_tbl
     rownames(cat_tbl) <- c("++","+","-","--","DK","無回答")
@@ -489,7 +493,8 @@ server <- function(input, output, session) {
 
     # df の 1 列目から 20 列目の各列ごとにカテゴリを集計
     category_count_tbl <- data_for_plot() %>%
-      dplyr::summarise(across(selected_vars, ~ count_categories(.)))
+      #dplyr::summarise(across(selected_vars, ~ count_categories(.)))
+      dplyr::reframe(across(selected_vars, ~ count_categories(.)))
 
     category_count_tbl %>% as.matrix() -> cat_tbl
     rownames(cat_tbl) <- c("++","+","-","--","DK","無回答")
@@ -511,7 +516,7 @@ server <- function(input, output, session) {
 
     # df の 1 列目から 20 列目の各列ごとにカテゴリを集計
     category_count_tbl <- data_for_plot() %>%
-      dplyr::summarise(across(selected_vars, ~ count_categories(.)))
+      dplyr::reframe(across(selected_vars, ~ count_categories(.)))
 
     category_count_tbl %>% as.matrix() -> cat_tbl
     rownames(cat_tbl) <- grid_ptn
@@ -542,7 +547,7 @@ server <- function(input, output, session) {
 
     # df の 1 列目から 20 列目の各列ごとにカテゴリを集計
     category_count_tbl <- data_for_plot() %>%
-      dplyr::summarise(across(selected_vars, ~ count_categories(.)))
+      dplyr::reframe(across(selected_vars, ~ count_categories(.)))
 
     category_count_tbl %>% as.matrix() -> cat_tbl
     rownames(cat_tbl) <- grid_ptn #c("++","+","-","--","DK","無回答")
@@ -556,7 +561,7 @@ server <- function(input, output, session) {
   # Grid Mosaic Genenral
 
   output$GridAnswerG_mosaic <- renderPlot({
-
+    req(input$variables)
     selected_vars <- input$variables
     vectors <- purrr::map(selected_vars, ~ {
       data_for_plot() %>% select(selected_vars) %>%
@@ -572,7 +577,7 @@ server <- function(input, output, session) {
 
     # df のselected_varsの各列ごとにカテゴリを集計
     category_count_tbl <- data_for_plot() %>%
-      dplyr::summarise(across(selected_vars, ~ count_categories(.)))
+      dplyr::reframe(across(selected_vars, ~ count_categories(.))) # summarize -> reframe
 
     category_count_tbl %>% as.matrix() -> cat_tbl
     rownames(cat_tbl) <- union_all #grid_ptn
@@ -596,6 +601,7 @@ server <- function(input, output, session) {
 
   # GridAnswerG CA
   output$GridAnswerG_CA <- renderPlot({
+    req(input$variables)
     selected_vars <- input$variables
     #browser()
     vectors <- purrr::map(selected_vars, ~ {
@@ -612,7 +618,8 @@ server <- function(input, output, session) {
 
     # df のselected_varsの各列ごとにカテゴリを集計
     category_count_tbl <- data_for_plot() %>%
-      dplyr::summarise(across(selected_vars, ~ count_categories(.)))
+      #dplyr::summarise(across(selected_vars, ~ count_categories(.)))
+      dplyr::reframe(across(selected_vars, ~ count_categories(.)))
 
     category_count_tbl %>% as.matrix() -> cat_tbl
     rownames(cat_tbl) <- union_all #grid_ptn
