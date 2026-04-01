@@ -24,6 +24,10 @@ library(tibble)
 library(showtext)
 showtext::showtext_auto(TRUE)
 
+# DESCRIPTIONファイルから情報を読み取る
+desc_info <- read.dcf("DESCRIPTION")
+app_version <- desc_info[1, "Version"]
+
 # UI block
 
 ui <- fluidPage(
@@ -41,7 +45,11 @@ ui <- fluidPage(
         uiOutput("layer_var_ui"),
         uiOutput("dynamic_stratify_filter"), # 層化変数選択の下あたりに配置
         uiOutput("variables2_ui"),
-        uiOutput("hist_var_ui")
+        uiOutput("hist_var_ui"),
+
+        hr(), # 区切り線
+        # バージョン情報の表示
+        helpText(paste("Version:", app_version))
       ),
 
       mainPanel(
