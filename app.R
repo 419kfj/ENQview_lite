@@ -1,14 +1,7 @@
-#
-<<<<<<< HEAD
 #　ENQview_lite ver2.3
 #
 # 履歴
 #  ver2.3.  2026/04/07　Docker版をbuild
-=======
-#　ENQview_lite ver2.2.1
-#
-# 履歴
->>>>>>> 306c4890b41eae23c4389723df40725b92fa5080
 #　ver2.2.1 2026/03/29　層化変数のカテゴリ選択を実装（層化MAだけ）
 #　ver2.2   2026/03/26　dplyr::summarizeをreframeに修正
 #　ver2.0-　2025/10/08
