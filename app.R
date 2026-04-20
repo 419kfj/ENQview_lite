@@ -1,6 +1,7 @@
-#　ENQview_lite ver2.3
+#　ENQview_lite ver2.31
 #
 # 履歴
+#  ver2.31. 2026/04/20  使い方リンクtabを追加。　
 #  ver2.3.  2026/04/07　Docker版をbuild
 #　ver2.2.1 2026/03/29　層化変数のカテゴリ選択を実装（層化MAだけ）
 #　ver2.2   2026/03/26　dplyr::summarizeをreframeに修正
@@ -28,7 +29,7 @@ showtext::showtext_auto(TRUE)
 desc_info <- read.dcf("DESCRIPTION")
 app_version <- desc_info[1, "Version"]
 
-# UI block
+# UI block　----
 
 ui <- fluidPage(
   titlePanel("ENQview_lite RDAファイルからデータフレーム選択版"),
@@ -124,6 +125,13 @@ ui <- fluidPage(
           tabPanel("選択変数のデータ一覧",
                    h2("データ一覧"),
                    DT::dataTableOutput("table_for_plot")
+          ),
+          tabPanel("使い方",
+                   p("アプリの詳細な使い方は、以下のリンク先をご確認ください。"),
+                   a("Shinyアプリの使い方ガイド（外部サイト）",
+                     href = "https://www.fujimotolabo.uk/Shiny_app_how2/",
+                     target = "_blank") # 新しいタブで開く設定
+
           )
         )  # ← tabsetPanel の閉じかっこ
       )    # ← mainPanel の閉じかっこ
