@@ -36,7 +36,9 @@ fluidPage(
                             gt_output(outputId = "my_gt_table2"),
                             plotOutput("crosschart", width = 600, height = 600),
                             h3("χ2乗検定"),
-                            verbatimTextOutput("chisq_test2")
+                            verbatimTextOutput("chisq_test2"),
+                            h3("クロス表の対応分析"),
+                            plotOutput("Crosstable_CA")#2026/0522
                    ),
 
                    tabPanel("pairs", ## pairs ----

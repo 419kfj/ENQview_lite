@@ -6,8 +6,10 @@ library(gtsummary)
 library(vcd)
 library(purrr)
 library(tibble)
+library(FactoMineR)
 library(showtext)
 showtext::showtext_auto(TRUE)
+
 
 # DESCRIPTIONファイルから情報を読み取る
 desc_info <- read.dcf("DESCRIPTION")
