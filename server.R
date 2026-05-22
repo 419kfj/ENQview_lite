@@ -133,6 +133,15 @@ server <- function(input, output, session) {
     p
   })
 
+  # CA 2026/05/19,05/22追記/UIにも
+  output$Crosstable_CA <- shiny::renderPlot({
+    res.CA <- FactoMineR::CA(table(
+      data_for_plot()[[input$variables[1]]],
+      data_for_plot()[[input$select_input_data_for_cross]]
+    )
+    )
+  })
+
   # mosaic plot
   output$crosschart <- renderPlot({
     .tbl <- table(data_for_plot()[[input$select_input_data_for_cross]],
@@ -177,7 +186,8 @@ server <- function(input, output, session) {
 
   # gtsummary でクロス表表示
   output$my_gt_table <- render_gt(
-    plot_df %>% tbl_cross(col = input$select_input_data_for_cross,
+#    plot_df %>% tbl_cross(col = input$select_input_data_for_cross,
+    data_for_plot() %>% tbl_cross(col = input$select_input_data_for_cross,
                           row = input$variables[1], #select_input_data_for_hist,
                           percent = "row") %>%
       add_p(test="chisq.test") %>%
@@ -186,7 +196,8 @@ server <- function(input, output, session) {
   )
 
   output$my_gt_table2 <- render_gt(
-    plot_df %>% tbl_cross(row = input$select_input_data_for_cross,
+#   plot_df %>% tbl_cross(row = input$select_input_data_for_cross,
+    data_for_plot() %>% tbl_cross(row = input$select_input_data_for_cross,
                           col = input$variables[1], #select_input_data_for_hist,
                           percent = "row") %>%
       add_p(test="chisq.test") %>%
