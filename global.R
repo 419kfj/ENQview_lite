@@ -6,6 +6,7 @@ library(gtsummary)
 library(vcd)
 library(purrr)
 library(tibble)
+library(FactoMineR)
 library(showtext)
 showtext::showtext_auto(TRUE)
 
