@@ -38,11 +38,7 @@ fluidPage(
                             h3("χ2乗検定"),
                             verbatimTextOutput("chisq_test2"),
                             h3("クロス表の対応分析"),
-<<<<<<< HEAD
                             plotOutput("Crosstable_CA")#2026/0522
-=======
-                            plotOutput("Crosstable_CA")
->>>>>>> c9d53a2dda55c1f62b093875b17ca96801475aeb
                    ),
 
                    tabPanel("pairs", ## pairs ----
