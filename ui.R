@@ -20,7 +20,7 @@ fluidPage(
         uiOutput("variables2_ui"),
         uiOutput("hist_var_ui"),
         # 画面にカンニングペーパーを表示する枠
-        #verbatimTextOutput("debug_str")
+        verbatimTextOutput("debug_str")
       ),
 
       mainPanel( # mainPanel ----
