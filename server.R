@@ -1,4 +1,4 @@
-# server block ----
+# server block ------
 
 server <- function(input, output, session) {
   # .rdaファイルから処理対象のdatasetを選択する------

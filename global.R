@@ -10,6 +10,7 @@ library(FactoMineR)
 library(showtext)
 showtext::showtext_auto(TRUE)
 
+
 # DESCRIPTIONファイルから情報を読み取る
 desc_info <- read.dcf("DESCRIPTION")
 app_version <- desc_info[1, "Version"]
