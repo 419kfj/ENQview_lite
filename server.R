@@ -71,12 +71,6 @@ server <- function(input, output, session) {
                 choices = c(" ", names(data.df())))
   })
 
-  # output$variable_ui <- renderUI({
-  #   req(data.df())
-  #   selectInput("select_input_data_for_layer", "層変数を選択",
-  #               choices = c(" ", names(data.df())))
-  # })
-
 
   # データフレームの列をチェックボックスで選択
   output$variables_ui <- renderUI({
