@@ -18,7 +18,9 @@ fluidPage(
         uiOutput("layer_var_ui"),
         uiOutput("dynamic_stratify_filter"), # 層化変数選択の下あたりに配置
         uiOutput("variables2_ui"),
-        uiOutput("hist_var_ui")
+        uiOutput("hist_var_ui"),
+        # 画面にカンニングペーパーを表示する枠
+        verbatimTextOutput("debug_str")
       ),
 
       mainPanel( # mainPanel ----

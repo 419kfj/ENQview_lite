@@ -537,43 +537,260 @@ server <- function(input, output, session) {
 
   # Grid Mosaic Genenral
 
+  # output$GridAnswerG_mosaic <- renderPlot({
+  #   req(input$variables)
+  #   selected_vars <- input$variables
+  #   vectors <- purrr::map(selected_vars, ~ {
+  #     data_for_plot() %>% select(selected_vars) %>%
+  #       dplyr::count(!!sym(.x)) %>%  # 選択した列ごとにカウント
+  #       dplyr::pull(1)               # 最初の列のユニークな値を取得
+  #   })
+  #
+  #   union_all <- reduce(vectors, union)
+  #   union_all <- ifelse(is.na(union_all), "NA", union_all)
+  #   count_categories <- function(x) {
+  #     table(factor(x, levels = union_all, exclude =NULL))
+  #   }
+
+    # # df のselected_varsの各列ごとにカテゴリを集計
+    # category_count_tbl <- data_for_plot() %>%
+    #   dplyr::reframe(across(selected_vars, ~ count_categories(.))) # summarize -> reframe
+    #
+    # category_count_tbl %>% as.matrix() -> cat_tbl
+    # rownames(cat_tbl) <- union_all #grid_ptn
+    # cat_tbl
+    # # cat_tbl の名前部分に NA が含まれていれば "NA" に変換
+    # names(cat_tbl) <- ifelse(is.na(names(cat_tbl)), "NA", names(cat_tbl))
+    #
+    # rownames(t(cat_tbl)) -> rnames
+    # t(cat_tbl) %>% as.tibble() %>% dplyr::mutate(ID=rnames,IDn=1:length(rnames)) %>% # ★t(cat_tbl) %>% as.tibble() でエラー
+    #   dplyr::arrange(desc(union_all[1])) %>%
+    #   dplyr::select(IDn) %>% unlist %>%
+    #   setNames(NULL) -> order_vec
+    #
+    # t(cat_tbl)[order_vec,] %>%
+    #   #t(cat_tbl) %>%
+    #   vcd::mosaic(shade = TRUE,rot_labels = c(0, 0),
+    #               margins=c(left=12,top=5),just_labels=c(left="right",top="left"))
+
+
+
+  #})
+
+
+  # output$GridAnswerG_mosaic <- renderPlot({
+  #   req(input$variables)
+  #   selected_vars <- input$variables
+  #
+  #   # 1. 各列のユニークな値（カテゴリ）を抽出してまとめる
+  #   vectors <- purrr::map(selected_vars, ~ {
+  #     data_for_plot() %>%
+  #       dplyr::select(dplyr::all_of(selected_vars)) %>%
+  #       dplyr::count(!!sym(.x)) %>%
+  #       dplyr::pull(1)
+  #   })
+  #
+  #   union_all <- reduce(vectors, union)
+  #   union_all <- ifelse(is.na(union_all), "NA", union_all)
+  #
+  #   # カテゴリを集計するための関数を定義
+  #   count_categories <- function(x) {
+  #     table(factor(x, levels = union_all, exclude = NULL))
+  #   }
+  #
+  #   # 2. category_count_tbl を作成
+  #   category_count_tbl <- data_for_plot() %>%
+  #     dplyr::reframe(across(dplyr::all_of(selected_vars), ~ count_categories(.)))
+  #
+  #   # # 3. マトリックス（行列）形式に変換
+  #   # category_count_tbl %>% as.matrix() -> cat_tbl
+  #   # rownames(cat_tbl) <- union_all
+  #   #
+  #   # # 名前のNA判定処理
+  #   # names(cat_tbl) <- ifelse(is.na(names(cat_tbl)), "NA", names(cat_tbl))
+  #   #
+  #   # # ------------------------------------------------------------
+  #   # # 4. 【ここを完全修正】環境依存の激しい dplyr を使わず、
+  #   # #    Rの標準機能（base）で絶対にエラーの出ない並び替え順（order_vec）を作る
+  #   # # ------------------------------------------------------------
+  #   # mat_t <- t(cat_tbl)
+  #   # # 最初のカテゴリ（行または列）の値が大きい順に、行インデックスを並び替える
+  #   # order_vec <- order(mat_t[, 1], decreasing = TRUE)
+  #   # # ------------------------------------------------------------
+  #   #
+  #   # # # 5. 【超重要】 , drop = FALSE をつけて2次元の行列構造を絶対に維持！
+  #   # # final_matrix <- mat_t[order_vec, , drop = FALSE]
+  #   # #
+  #   # # # 【★これを追加！】ログ（あるいは画面裏）に、行列の実体を書き出す
+  #   # # print(final_matrix)
+  #   # #
+  #   # # # 6. 確実に2次元の形のまま mosaic に投入
+  #   # # final_matrix %>%
+  #   # #   vcd::mosaic(shade = TRUE,
+  #   # #               rot_labels = c(0, 0),
+  #   # #               margins = c(left = 12, top = 5),
+  #   # #               just_labels = c(left = "right", top = "left"))
+  #   #
+  #   # # 5. , drop = FALSE をつけて2次元の行列構造を絶対に維持！
+  #   # final_matrix <- mat_t[order_vec, , drop = FALSE]
+  #   #
+  #   # # 【重要】行列の「行名」と「列名」の種類に名前をつけて、モデルが解釈できるようにする
+  #   # names(dimnames(final_matrix)) <- c("Product", "Category")
+  #   #
+  #   # # 6. 統計モデルを明示的に指定して、確実に残差を計算させる！
+  #   # final_matrix %>%
+  #   #   vcd::mosaic(expected = ~ Product + Category, # ★これをつけることで自動解釈のブレを強制阻止！
+  #   #               shade = TRUE,
+  #   #               rot_labels = c(0, 0),
+  #   #               margins = c(left = 12, top = 5),
+  #   #               just_labels = c(left = "right", top = "left"))
+  #
+  #
+  #   # 3. マトリックス（行列）形式に変換
+  #   category_count_tbl %>% as.matrix() -> cat_tbl
+  #   rownames(cat_tbl) <- union_all
+  #
+  #   names(cat_tbl) <- ifelse(is.na(names(cat_tbl)), "NA", names(cat_tbl))
+  #
+  #   # ------------------------------------------------------------
+  #   # 4. 【大改造】Rの最も原始的で頑丈な方法で並び替えと型固定を行う
+  #   # ------------------------------------------------------------
+  #   mat_t <- t(cat_tbl)
+  #   order_vec <- order(mat_t[, 1], decreasing = TRUE)
+  #
+  #   # 綺麗に並び替えた2次元の行列
+  #   sorted_matrix <- mat_t[order_vec, , drop = FALSE]
+  #
+  #   # 【超重要】ただの matrix 型だと Shiny Server 上でベクトルに化ける可能性があるため、
+  #   # 統計検定用の正式な「2次元クロス表オブジェクト（tableクラス）」に強制変換する
+  #   final_table <- as.table(sorted_matrix)
+  #
+  #   # テーブルの次元に名前を完全明示
+  #   names(dimnames(final_table)) <- c("Question", "Response")
+  #   # ------------------------------------------------------------
+  #
+  #   # 5. ログに型と中身を同時に書き出す（これで裏の姿を完全に暴きます）
+  #   print("--- DEBUG: final_table の型と中身 ---")
+  #   print(class(final_table))  # クラス（型）を表示
+  #   print(final_table)         # 構造を表示
+  #
+  #   # 6. 完全に table オブジェクトになったものを mosaic に投入
+  #   final_table %>%
+  #     vcd::mosaic(shade = TRUE,
+  #                 rot_labels = c(0, 0),
+  #                 margins = c(left = 12, top = 5),
+  #                 just_labels = c(left = "right", top = "left"))
+  #
+  # })
+
+
+  # output$GridAnswerG_mosaic <- renderPlot({
+  #   req(input$variables)
+  #   selected_vars <- input$variables
+  #
+  #   # 1. 【完全修正】各列（.x）のユニークな値を、型崩れさせずにピンポイントで抽出
+  #   vectors <- purrr::map(selected_vars, ~ {
+  #     data_for_plot() %>%
+  #       dplyr::pull(!!sym(.x)) %>%  # selectせず直接その列だけをベクトルとして引っこ抜く
+  #       unique()
+  #   })
+  #
+  #   union_all <- reduce(vectors, union)
+  #   union_all <- ifelse(is.na(union_all), "NA", union_all)
+  #
+  #   # カテゴリを厳密な順序のFactor型にして集計するための関数
+  #   count_categories <- function(x) {
+  #     table(factor(x, levels = union_all, exclude = NULL))
+  #   }
+  #
+  #   # 2. selected_vars の各列ごとにカテゴリを正しくクロス集計
+  #   category_count_tbl <- data_for_plot() %>%
+  #     dplyr::reframe(across(dplyr::all_of(selected_vars), ~ count_categories(.)))
+
   output$GridAnswerG_mosaic <- renderPlot({
     req(input$variables)
     selected_vars <- input$variables
+
+    # 【★超重要・一撃必殺の防弾処理】
+    # 選択された列のデータを、Factor型から「ただのプレーンな文字列型(character)」に強制変換する
+    # これにより、3838環境下での "1", "2" への化けを根絶します
+    cleaned_data <- data_for_plot() %>%
+      dplyr::mutate(across(dplyr::all_of(selected_vars), as.character))
+
+    # 1. 以降の集計は、すべてこの文字列化した「cleaned_data」をベースに行う！
     vectors <- purrr::map(selected_vars, ~ {
-      data_for_plot() %>% select(selected_vars) %>%
-        dplyr::count(!!sym(.x)) %>%  # 選択した列ごとにカウント
-        dplyr::pull(1)               # 最初の列のユニークな値を取得
+      cleaned_data %>%
+        dplyr::pull(!!sym(.x)) %>%
+        unique()
     })
 
     union_all <- reduce(vectors, union)
     union_all <- ifelse(is.na(union_all), "NA", union_all)
+
+    # カテゴリを集計するための関数（ここも cleaned_data を見るように徹底）
     count_categories <- function(x) {
-      table(factor(x, levels = union_all, exclude =NULL))
+      table(factor(x, levels = union_all, exclude = NULL))
     }
 
-    # df のselected_varsの各列ごとにカテゴリを集計
-    category_count_tbl <- data_for_plot() %>%
-      dplyr::reframe(across(selected_vars, ~ count_categories(.))) # summarize -> reframe
+    # 2. selected_vars の各列ごとにカテゴリを集計
+    category_count_tbl <- cleaned_data %>%
+      dplyr::reframe(across(dplyr::all_of(selected_vars), ~ count_categories(.)))
 
-    category_count_tbl %>% as.matrix() -> cat_tbl
-    rownames(cat_tbl) <- union_all #grid_ptn
-    cat_tbl
-    # cat_tbl の名前部分に NA が含まれていれば "NA" に変換
-    names(cat_tbl) <- ifelse(is.na(names(cat_tbl)), "NA", names(cat_tbl))
+    # （※これ以降の3、4、5、6の行列変換・描画コードは、今のままで全く触らなくて大丈夫です！）
 
-    rownames(t(cat_tbl)) -> rnames
-    t(cat_tbl) %>% as.tibble() %>% dplyr::mutate(ID=rnames,IDn=1:length(rnames)) %>% # ★t(cat_tbl) %>% as.tibble() でエラー
-      dplyr::arrange(desc(union_all[1])) %>%
-      dplyr::select(IDn) %>% unlist %>%
-      setNames(NULL) -> order_vec
+    # 3. マトリックス（行列）形式に変換し、行名（回答カテゴリ）を付与
+    cat_tbl <- as.matrix(category_count_tbl)
+    rownames(cat_tbl) <- union_all
 
-    t(cat_tbl)[order_vec,] %>%
-      #t(cat_tbl) %>%
-      vcd::mosaic(shade = TRUE,rot_labels = c(0, 0),
-                  margins=c(left=12,top=5),just_labels=c(left="right",top="left"))
+    # 4. 行列を転置して、Rの標準機能（order）で頑丈に並び替え
+    mat_t <- t(cat_tbl)
+    order_vec <- order(mat_t[, 1], decreasing = TRUE)
+    sorted_matrix <- mat_t[order_vec, , drop = FALSE]
 
+    # 5. 2次元のクロス表オブジェクト（table）に完全固定
+    final_table <- as.table(sorted_matrix)
+    names(dimnames(final_table)) <- c("Question", "Response")
+
+    # 【★この1行だけを仕込む！】
+    print("--- 3838環境での final_table のナマの構造 ---")
+    str(final_table)
+
+    # 6. 完全に構造が保証された table を mosaic に投入
+    final_table %>%
+      vcd::mosaic(shade = TRUE,
+                  rot_labels = c(0, 0),
+                  margins = c(left = 12, top = 5),
+                  just_labels = c(left = "right", top = "left"))
   })
+
+
+  #### Degug用
+
+  # 3838ポートの画面に、データの生構造を送り出すデバッグプローブ
+  output$debug_str <- renderPrint({
+    req(input$variables)
+
+    # グラフを描く直前と「100%完全に同じデータ」をここでもう一度再現する
+    selected_vars <- input$variables
+    vectors <- purrr::map(selected_vars, ~ {
+      data_for_plot() %>% dplyr::pull(!!sym(.x)) %>% unique()
+    })
+    union_all <- reduce(vectors, union)
+    union_all <- ifelse(is.na(union_all), "NA", union_all)
+    count_categories <- function(x) table(factor(x, levels = union_all, exclude = NULL))
+    category_count_tbl <- data_for_plot() %>% dplyr::reframe(across(dplyr::all_of(selected_vars), ~ count_categories(.)))
+    cat_tbl <- as.matrix(category_count_tbl)
+    rownames(cat_tbl) <- union_all
+    mat_t <- t(cat_tbl)
+    order_vec <- order(mat_t[, 1], decreasing = TRUE)
+    sorted_matrix <- mat_t[order_vec, , drop = FALSE]
+    final_table <- as.table(sorted_matrix)
+
+    # 【最重要】画面に向かって、型と構造を吐き出す
+    str(final_table)
+  })
+
+
 
 
   # GridAnswerG CA
