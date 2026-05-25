@@ -18,9 +18,9 @@ fluidPage(
         uiOutput("layer_var_ui"),
         uiOutput("dynamic_stratify_filter"), # 層化変数選択の下あたりに配置
         uiOutput("variables2_ui"),
-        uiOutput("hist_var_ui"),
+        uiOutput("hist_var_ui")#,
         # 画面にカンニングペーパーを表示する枠
-        verbatimTextOutput("debug_str")
+        #verbatimTextOutput("debug_str")
       ),
 
       mainPanel( # mainPanel ----
@@ -40,11 +40,7 @@ fluidPage(
                             h3("χ2乗検定"),
                             verbatimTextOutput("chisq_test2"),
                             h3("クロス表の対応分析"),
-<<<<<<< HEAD
-                            plotOutput("Crosstable_CA")#2026/0522
-=======
-                            plotOutput("Crosstable_CA")
->>>>>>> c9d53a2dda55c1f62b093875b17ca96801475aeb
+                            plotOutput("Crosstable_CA") #2026/0522
                    ),
 
                    tabPanel("pairs", ## pairs ----
