@@ -214,6 +214,9 @@ server <- function(input, output, session) {
   })
 
 
+  output$str_data <- renderPrint({
+    str(data_for_plot())
+  })
 
   # gtsummay でMA表
   output$MA_gt_table <- render_gt(

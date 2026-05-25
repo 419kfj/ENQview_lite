@@ -98,6 +98,12 @@ fluidPage(
                             h2("データ一覧"),
                             DT::dataTableOutput("table_for_plot")
                    ),
+
+                   tabPanel("選択変数の構造表示（str）",## 選択変数のデータのstr表示 ----
+                            h2("データ一覧"),
+                            verbatimTextOutput("str_data")
+                   ),
+
                    tabPanel("使い方", ## 使い方 ----
                             p("アプリの詳細な使い方は、以下のリンク先をご確認ください。"),
                             a("Shinyアプリの使い方ガイド（外部サイト）",
