@@ -1,14 +1,13 @@
 # UI block　----
 shinyUI(
 fluidPage(
-  titlePanel("ENQview_lite RDAファイルからデータフレーム選択版"),
-
+  titlePanel(paste(" ENQview_lite Ver:", app_version)),
   tabPanel(
     "基本集計",
     sidebarLayout(   # 基本集計sidebarPanel  ----
       sidebarPanel(
         # バージョン情報の表示
-        helpText(paste("Version:", app_version)),
+  #      helpText(paste("Version:", app_version)),
 
         fileInput("rda_file", "RDAファイルを選択", accept = ".rda"),
         uiOutput("rda_objects_ui"),
