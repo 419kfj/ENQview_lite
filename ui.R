@@ -1,14 +1,13 @@
 # UI block　----
 shinyUI(
 fluidPage(
-  titlePanel("ENQview_lite RDAファイルからデータフレーム選択版"),
-
+  titlePanel(paste(" ENQview_lite Ver:", app_version)),
   tabPanel(
     "基本集計",
     sidebarLayout(   # 基本集計sidebarPanel  ----
       sidebarPanel(
         # バージョン情報の表示
-        helpText(paste("Version:", app_version)),
+  #      helpText(paste("Version:", app_version)),
 
         fileInput("rda_file", "RDAファイルを選択", accept = ".rda"),
         uiOutput("rda_objects_ui"),
@@ -18,7 +17,7 @@ fluidPage(
         uiOutput("layer_var_ui"),
         uiOutput("dynamic_stratify_filter"), # 層化変数選択の下あたりに配置
         uiOutput("variables2_ui"),
-        uiOutput("hist_var_ui"),
+        uiOutput("hist_var_ui")#,
         # 画面にカンニングペーパーを表示する枠
         #verbatimTextOutput("debug_str")
       ),
@@ -40,7 +39,7 @@ fluidPage(
                             h3("χ2乗検定"),
                             verbatimTextOutput("chisq_test2"),
                             h3("クロス表の対応分析"),
-                            plotOutput("Crosstable_CA")
+                            plotOutput("Crosstable_CA")#2026/0522
                    ),
 
                    tabPanel("pairs", ## pairs ----
@@ -99,6 +98,12 @@ fluidPage(
                             h2("データ一覧"),
                             DT::dataTableOutput("table_for_plot")
                    ),
+
+                   tabPanel("選択変数の構造表示（str）",## 選択変数のデータのstr表示 ----
+                            h2("データ一覧"),
+                            verbatimTextOutput("str_data")
+                   ),
+
                    tabPanel("使い方", ## 使い方 ----
                             p("アプリの詳細な使い方は、以下のリンク先をご確認ください。"),
                             a("Shinyアプリの使い方ガイド（外部サイト）",
